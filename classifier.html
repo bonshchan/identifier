@@ -1,0 +1,180 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">  
+<title>Using Camera</title>
+	<head>
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+		<script type="text/javascript">
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "https://teachablemachine.withgoogle.com/models/vDABdw5RN/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(500, 500); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels																																																																																																
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+    // run the webcam image through the image model
+    async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+    }
+</script>
+<style>
+
+body {
+  background-image: url(bg1.png);
+  background-size: cover;
+  background-position: center;
+
+}
+
+#r1{
+  text-align: center;
+  margin: 5;
+}
+
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 9px #999;
+}
+
+.button:hover {background-color: #3e8e41}
+
+.button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+/* media query for screens smaller than 600px */
+@media only screen and (max-width: 600px) {
+  .wrapper {
+    width: 90%;
+    margin: 20px auto;
+    padding: 1rem;
+  }
+  
+  .button {
+    font-size: 20px;
+    padding: 8px 16px;
+  }
+}
+
+/* media query for screens between 600px and 900px */
+@media only screen and (min-width: 600px) and (max-width: 900px) {
+  .wrapper {
+    width: 70%;
+    margin: 30px auto;
+    padding: 1.5rem;
+  }
+  
+  .button {
+    font-size: 22px;
+    padding: 8px 16px;
+  }
+}
+
+/* media query for screens larger than 900px */
+@media only screen and (min-width: 900px) {
+  .wrapper {
+    width: 800px;
+    margin: 50px auto;
+    padding: 2rem 0 1rem 0;
+  }
+}
+</style>
+
+
+
+	</head>
+	
+	<body>
+	
+	<div id="r1">
+<font size="6" 
+	face = "Times New Roman"
+	color= "black">
+Republic of the Philippines </font>
+<hr size= 1 width= 500 color= "white" >
+
+<font size="5" 
+	face = "Times New Roman"
+	color= "black">
+ILOCOS SUR POLYTECHNIC STATE COLLEGE <br>
+
+Candon City, Ilocos Sur 2710 </font>
+
+<a href="index.html">
+<p align ="center">
+	<img src= "home.png" 
+	     height= "50"
+		width= "50">
+</p>
+</a>
+		
+		<br>
+		<center>
+			<div id="webcam-container" style="height:500px; width:500px; border:solid 1px black;"></div>
+			<div id="label-container"></div>
+		<br  >
+			<button class="button" onclick="init()" style="width:200px;">
+			<p align="center">
+			<font size="5" 
+				  face = "Tahoma">
+			Start
+			</font>
+			</button>
+		</center>
+	</body>
+
+</html>
